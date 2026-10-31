@@ -306,6 +306,7 @@ function loadSettings(){
     const savedLogo = localStorage.getItem('pawsStoreSavedLogo');
 
 if(savedLogo){
+  alert('LOGO DITEMUKAN SAAT WEBSITE DIBUKA!');
   const savedImg = new Image();
  savedImg.onload = () => {
   logo = savedImg;
