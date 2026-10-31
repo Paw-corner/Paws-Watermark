@@ -426,8 +426,7 @@ function render(){
     ctx.restore();
   }
 
-  $('preview').innerHTML = '';
-  $('preview').appendChild(canvas);
+ if(canvas.parentElement !== $('preview')) $('preview').appendChild(canvas);
 }
 
 function pointerPosition(e){
