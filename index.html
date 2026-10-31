@@ -306,7 +306,6 @@ function loadSettings(){
     const savedLogo = localStorage.getItem('pawsStoreSavedLogo');
 
 if(savedLogo){
-  alert('LOGO DITEMUKAN SAAT WEBSITE DIBUKA!');
   const savedImg = new Image();
  savedImg.onload = () => {
   logo = savedImg;
@@ -363,12 +362,6 @@ $('logoFile').addEventListener('change', e => {
   reader.onload = () => {
     try {
   localStorage.setItem('pawsStoreSavedLogo', reader.result);
-
-  alert(
-    localStorage.getItem('pawsStoreSavedLogo')
-      ? 'LOGO BERHASIL TERSIMPAN!'
-      : 'LOGO BELUM TERSIMPAN!'
-  );
 
 } catch (error) {
   alert('Penyimpanan penuh. Coba gunakan logo yang lebih kecil.');
