@@ -307,10 +307,15 @@ function loadSettings(){
 
 if(savedLogo){
   const savedImg = new Image();
-  savedImg.onload = () => {
-    logo = savedImg;
-    render();
-  };
+ savedImg.onload = () => {
+  logo = savedImg;
+  render();
+  console.log('LOGO BERHASIL DIMUAT');
+};
+
+savedImg.onerror = () => {
+  alert('Logo tersimpan, tetapi gagal dimuat kembali.');
+};
   savedImg.src = savedLogo;
 }
     const s = JSON.parse(localStorage.getItem('pawsWatermarkSettings'));
