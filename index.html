@@ -356,10 +356,17 @@ $('logoFile').addEventListener('change', e => {
 
   reader.onload = () => {
     try {
-      localStorage.setItem('pawsStoreSavedLogo', reader.result);
-    } catch (error) {
-      alert('Penyimpanan penuh. Coba gunakan logo yang lebih kecil.');
-    }
+  localStorage.setItem('pawsStoreSavedLogo', reader.result);
+
+  alert(
+    localStorage.getItem('pawsStoreSavedLogo')
+      ? 'LOGO BERHASIL TERSIMPAN!'
+      : 'LOGO BELUM TERSIMPAN!'
+  );
+
+} catch (error) {
+  alert('Penyimpanan penuh. Coba gunakan logo yang lebih kecil.');
+}
 
     readImage(file, img => {
       logo = img;
