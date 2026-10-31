@@ -437,43 +437,57 @@ function pointerPosition(e){
   };
 }
 
+canvas.style.touchAction = 'none';
+
 canvas.addEventListener('pointerdown', e => {
   if(!logo || !photoReady) return;
+
   const p = pointerPosition(e);
 
-  if(p.x >= logoX && p.x <= logoX+logoW &&
-     p.y >= logoY && p.y <= logoY+logoH){
-    dragging = true;
-    pointerId = e.pointerId;
-    dragOffsetX = p.x-logoX;
-    dragOffsetY = p.y-logoY;
-    canvas.classList.add('dragging');
-    canvas.setPointerCapture(e.pointerId);
-    e.preventDefault();
+  dragging = true;
+  pointerId = e.pointerId;
+
+  const inside =
+    p.x >= logoX && p.x <= logoX + logoW &&
+    p.y >= logoY && p.y <= logoY + logoH;
+
+  if(inside){
+    dragOffsetX = p.x - logoX;
+    dragOffsetY = p.y - logoY;
+  } else {
+    dragOffsetX = logoW / 2;
+    dragOffsetY = logoH / 2;
   }
+
+  e.preventDefault();
 });
 
-canvas.addEventListener('pointermove', e => {
+document.addEventListener('pointermove', e => {
   if(!dragging || e.pointerId !== pointerId) return;
+
   const p = pointerPosition(e);
-  logoX = p.x-dragOffsetX;
-  logoY = p.y-dragOffsetY;
+
+  logoX = p.x - dragOffsetX;
+  logoY = p.y - dragOffsetY;
+
   clampLogo();
   render();
-  canvas.classList.add('dragging');
+
   e.preventDefault();
 });
 
 function finishDrag(e){
   if(!dragging || (e && e.pointerId !== pointerId)) return;
+
   dragging = false;
   pointerId = null;
+
   canvas.classList.remove('dragging');
   saveSettings();
 }
-canvas.addEventListener('pointerup',finishDrag);
-canvas.addEventListener('pointercancel',finishDrag);
-canvas.addEventListener('lostpointercapture',finishDrag);
+
+document.addEventListener('pointerup', finishDrag);
+document.addEventListener('pointercancel', finishDrag);
 
 ['position','size','opacity','margin'].forEach(id => {
   $(id).addEventListener('input', () => {
