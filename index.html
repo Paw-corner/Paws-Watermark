@@ -1,0 +1,333 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paw's store | Watermark Studio</title>
+
+<style>
+:root {
+  --green:#bee2a0;
+  --pink:#fdc6db;
+  --cream:#ffedb8;
+  --rose:#fe89b6;
+  --yellow:#ffcd71;
+  --ink:#65505a;
+  --bg:#fff9fb;
+}
+* {box-sizing:border-box}
+
+body {
+  margin:0;
+  padding:20px 14px 40px;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:Arial,sans-serif;
+}
+main {max-width:650px;margin:auto}
+
+header {
+  text-align:center;
+  padding:30px 15px;
+  background:linear-gradient(135deg,var(--pink),var(--cream));
+  border-radius:25px;
+  margin-bottom:20px;
+}
+header h1 {
+  font-size:29px;
+  margin:0 0 8px;
+  color:#9b5875;
+}
+header p {font-size:13px;margin:0}
+
+.card {
+  background:white;
+  border:1px solid #f5dce7;
+  border-radius:20px;
+  padding:19px;
+  margin-bottom:16px;
+  box-shadow:0 4px 15px #e9b9cc20;
+}
+h2 {font-size:16px;margin:0 0 15px}
+
+label {
+  display:block;
+  font-size:13px;
+  font-weight:bold;
+  margin:15px 0 8px;
+}
+input[type=file] {
+  width:100%;
+  font-size:13px;
+  padding:13px;
+  background:#fff9fb;
+  border:1px dashed var(--rose);
+  border-radius:13px;
+}
+input[type=range] {
+  width:100%;
+  accent-color:var(--rose);
+}
+select {
+  width:100%;
+  padding:12px;
+  border:1px solid var(--pink);
+  border-radius:12px;
+  background:white;
+  color:var(--ink);
+}
+button {
+  border:0;
+  border-radius:13px;
+  padding:14px;
+  font-weight:bold;
+  font-size:14px;
+  cursor:pointer;
+}
+.primary {background:var(--rose);color:white}
+.secondary {background:var(--cream);color:var(--ink)}
+.green {background:var(--green);color:#455d38}
+.buttons {display:flex;gap:10px;flex-wrap:wrap}
+.buttons button {flex:1;min-width:120px}
+
+.preview-wrap {
+  min-height:150px;
+  background:#fff5f8;
+  border:1px dashed var(--pink);
+  border-radius:15px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+#preview {width:100%;display:block}
+.hint {
+  font-size:12px;
+  color:#a18a95;
+  line-height:1.6;
+}
+.value {float:right;color:#d66e9b}
+footer {
+  text-align:center;
+  font-size:12px;
+  padding:20px;
+  color:#b17e96;
+}
+</style>
+</head>
+
+<body>
+<main>
+
+<header>
+  <h1>♡ Paw's store ♡</h1>
+  <p>Watermark Studio · Testimonial Editor</p>
+  <p>Make your memories sweeter! 🐾</p>
+</header>
+
+<section class="card">
+  <h2>🎀 Upload Watermark</h2>
+  <input type="file" id="logoFile" accept="image/*">
+  <p class="hint">Pilih logo dari galeri HP. PNG transparan direkomendasikan.</p>
+</section>
+
+<section class="card">
+  <h2>🌷 Upload Foto Testimoni</h2>
+  <input type="file" id="photoFile" accept="image/*">
+  <p class="hint">Pilih foto yang ingin kamu beri watermark.</p>
+</section>
+
+<section class="card">
+  <h2>✨ Pengaturan Watermark</h2>
+
+  <label>Posisi watermark</label>
+  <select id="position">
+    <option value="top-left">Kiri atas</option>
+    <option value="top-center">Tengah atas</option>
+    <option value="top-right">Kanan atas</option>
+    <option value="middle-left">Kiri tengah</option>
+    <option value="center">Tengah</option>
+    <option value="middle-right">Kanan tengah</option>
+    <option value="bottom-left">Kiri bawah</option>
+    <option value="bottom-center">Tengah bawah</option>
+    <option value="bottom-right" selected>Kanan bawah</option>
+  </select>
+
+  <label>Ukuran <span class="value" id="sizeValue">20%</span></label>
+  <input type="range" id="size" min="5" max="60" value="20">
+
+  <label>Opasitas <span class="value" id="opacityValue">50%</span></label>
+  <input type="range" id="opacity" min="5" max="100" value="50">
+
+  <label>Jarak tepi <span class="value" id="marginValue">3%</span></label>
+  <input type="range" id="margin" min="0" max="15" value="3">
+</section>
+
+<section class="card">
+  <h2>💗 Preview Hasil</h2>
+  <div class="preview-wrap">
+    <canvas id="preview"></canvas>
+  </div>
+  <p class="hint" id="status">Upload logo dan foto untuk memulai ♡</p>
+</section>
+
+<section class="card">
+  <h2>🌼 Download Hasil</h2>
+  <div class="buttons">
+    <button class="primary" id="download">⬇ Download</button>
+    <button class="secondary" id="replace">↻ Ganti Foto</button>
+  </div>
+  <p class="hint">Hasil watermark disimpan dalam format PNG.</p>
+</section>
+
+<footer>
+  Made with ♡ by Paw's store<br>
+  Special service from Paw's store
+</footer>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const canvas = $("preview");
+const ctx = canvas.getContext("2d");
+
+let logo = null;
+let photo = null;
+
+function loadImage(file, callback) {
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    alert("Pilih file gambar yang valid.");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => callback(img);
+    img.onerror = () => alert("Gambar gagal dibuka.");
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+$("logoFile").addEventListener("change", e => {
+  loadImage(e.target.files[0], img => {
+    logo = img;
+    render();
+  });
+});
+
+$("photoFile").addEventListener("change", e => {
+  loadImage(e.target.files[0], img => {
+    photo = img;
+    render();
+  });
+});
+
+["size","opacity","margin"].forEach(id => {
+  $(id).addEventListener("input", () => {
+    $(id+"Value").textContent = $(id).value+"%";
+    saveSettings();
+    render();
+  });
+});
+
+$("position").addEventListener("change", () => {
+  saveSettings();
+  render();
+});
+
+function saveSettings() {
+  try {
+    localStorage.setItem("paws-store-settings", JSON.stringify({
+      size:$("size").value,
+      opacity:$("opacity").value,
+      margin:$("margin").value,
+      position:$("position").value
+    }));
+  } catch(e) {}
+}
+
+function restoreSettings() {
+  try {
+    const s = JSON.parse(localStorage.getItem("paws-store-settings"));
+    if (!s) return;
+    $("size").value = s.size;
+    $("opacity").value = s.opacity;
+    $("margin").value = s.margin;
+    $("position").value = s.position;
+    ["size","opacity","margin"].forEach(id => {
+      $(id+"Value").textContent = $(id).value+"%";
+    });
+  } catch(e) {}
+}
+
+function render() {
+  if (!photo) {
+    canvas.width=600;
+    canvas.height=300;
+    ctx.clearRect(0,0,600,300);
+    $("status").textContent="Upload foto testimoni untuk memulai ♡";
+    return;
+  }
+
+  canvas.width=photo.naturalWidth;
+  canvas.height=photo.naturalHeight;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(photo,0,0);
+
+  if (!logo) {
+    $("status").textContent="Foto siap! Silakan upload watermark.";
+    return;
+  }
+
+  const w=canvas.width*Number($("size").value)/100;
+  const h=w*logo.naturalHeight/logo.naturalWidth;
+  const gap=Math.min(canvas.width,canvas.height)*
+            Number($("margin").value)/100;
+  const pos=$("position").value;
+
+  let x=gap,y=gap;
+
+  if (pos.includes("right")) x=canvas.width-w-gap;
+  if (pos.includes("center") && pos!=="center")
+    x=(canvas.width-w)/2;
+  if (pos==="center" || pos.startsWith("middle"))
+    y=(canvas.height-h)/2;
+  if (pos.startsWith("bottom"))
+    y=canvas.height-h-gap;
+
+  ctx.save();
+  ctx.globalAlpha=Number($("opacity").value)/100;
+  ctx.drawImage(logo,x,y,w,h);
+  ctx.restore();
+
+  $("status").textContent="♡ Watermark berhasil diterapkan!";
+}
+
+$("download").addEventListener("click", () => {
+  if (!photo || !logo) {
+    alert("Upload foto dan watermark terlebih dahulu.");
+    return;
+  }
+  const link=document.createElement("a");
+  link.download="Paws-store-Watermark.png";
+  link.href=canvas.toDataURL("image/png");
+  link.click();
+});
+
+$("replace").addEventListener("click", () => {
+  photo=null;
+  $("photoFile").value="";
+  render();
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+
+restoreSettings();
+render();
+</script>
+
+</body>
+</html>
